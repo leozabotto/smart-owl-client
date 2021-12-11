@@ -8,6 +8,7 @@ import { DataGrid, ptBR } from '@material-ui/data-grid';
 
 import AddIcon from '@material-ui/icons/Add';
 import PrintIcon from '@material-ui/icons/PrintOutlined';
+import download from 'downloadjs';
 import CreateOutlinedIcon from '@material-ui/icons/CreateOutlined'
 
 import AdmDrawer from '../../../components/AdmDrawer';
@@ -42,12 +43,47 @@ const Matriculas = () => {
   const [loading, setLoading] = useState(false);
 
   const [matriculas, setMatriculas] = useState([])
+  const [modalRelatorio, setModalRelatorio] = useState(false);
+
+  const handleModalRelatorioOpen = () => {
+    setModalRelatorio(true)
+  }
+
+  const handleModalRelatorioClose = () => {
+    setModalRelatorio(false)
+  }
 
   const handleTurmaChange = (value) => {
     setTurma(value)
   }
   
   const [turma, setTurma] = useState([]); 
+
+  const handleRelatorio = async (matriculaId) => {
+    try {
+      handleModalRelatorioOpen();
+
+      const pdf = await api.post('relatorio', {
+          reportType: 'ficha_candidato',  
+          matriculaId,
+        }, { responseType: 'blob',  
+      })
+     
+      download(pdf.data, 'Ficha do Candidato.pdf');
+      handleModalRelatorioClose();
+      setLoading(false);
+      
+
+    } catch (err) {
+      setSnack({ 
+        message: 'Ocorreu um erro. Caso persista, contate o suporte! ' + err, 
+        type: 'error', 
+        open: true
+      });
+      handleModalRelatorioClose();
+    }
+
+  }
 
   const handleStatusChange = async (status, id) => {
     try {
@@ -100,12 +136,12 @@ const Matriculas = () => {
       headerName: 'Ações', 
       width: 100,
       sortable: false,
-      renderCell: (turma) => {                    
+      renderCell: (matricula) => {                    
         return (<>            
           <IconButton 
            title={"Imprimir Ficha"}
             onClick={() => {        
-              return true;   
+              handleRelatorio(matricula.row.id);   
             }
           }>
             <PrintOutlinedIcon />
@@ -253,6 +289,18 @@ const Matriculas = () => {
         
         </BackgroundCard>                  
       </div>   
+
+      <Modal
+        open={modalRelatorio}
+        onClose={handleModalRelatorioClose}
+        title={`Gerando ficha do candidato. Aguarde...`}
+        actions={
+          <>              
+          </>
+        }
+        >        
+          <CircularProgress />            
+      </Modal> 
     </AdmDrawer>
   );
 };
