@@ -15,11 +15,9 @@ import BackgroundCard from '../../../components/BackgroundCard';
 import PrimaryButton from '../../../components/Button';
 import BackgroundCardHeader from '../../../components/BackgroundCardHeader';
 import IconButton from '../../../components/IconButton';
-import AccessTimeIcon from '@material-ui/icons/AccessTime';
-
-import moment from 'moment';
 
 import FormCadastroTurma from '../../../components/FormCadastroTurma';
+import Crop32OutlinedIcon from '@material-ui/icons/Crop32Outlined';
 
 import { HeaderSubtitle } from '../../../components/HeaderTitle';
 import { SnackContext } from '../../../contexts/SnackContext';
@@ -33,24 +31,29 @@ import './index.css';
 import FormEdicaoTurma from '../../../components/FormEdicaoTurma';
 import SelectUnidades from '../../../components/SelectUnidades';
 import { CancelOutlined } from '@material-ui/icons';
+import { useHistory } from 'react-router';
 
 
-const Unidades = () => {
+const ApuracaoResultadoTurma = () => {
 
   const { setSnack } = useContext(SnackContext);      
   
   const [turmaParaEditar, setTurmaParaEditar] = useState(null);
-  const [turmaParaApurar, setTurmaParaApurar] = useState(null);
   const [turmaParaFechar, setTurmaParaFechar] = useState(null);
   const [modalEdicao, setModalEdicao] = useState(false);
   const [turmaEditada, setTurmaEditada] = useState({});
 
   const [modalCadastro, setModalCadastro] = useState(false);
-  const [modalApurar, setModalApurar] = useState(false);
   const [modalFechar, setModalFechar] = useState(false);
   const [turmaCriada, setTurmaCriada] = useState({});
 
   const [loading, setLoading] = useState(false);
+
+  const {}
+
+  console.log()
+
+  const history = useHistory();
 
   //const [processandoRelatorio, setProcessandoRelatorio] = useState(false); 
   
@@ -58,23 +61,22 @@ const Unidades = () => {
 
   const [unidade, setUnidade] = useState([]); 
 
-  const handleChangeStatusTurma = async (status) => {
+  const handleFecharTurma = async () => {
     try {
 
-      const turmaFechada = await api.post('/action/change_status_turma', { id: turmaParaApurar ? turmaParaApurar.id : turmaParaFechar.id, status, });
+      const turmaFechada = await api.post('/action/change_status_turma', { id: turmaParaFechar.id, status: 'Em Apuração' });
       setSnack({ 
-        message: 'Operação concluída!', 
+        message: 'Turma fechada com sucesso!', 
         type: 'success', 
         open: true
       });
 
-      handleModalApurarClose();
       handleModalFecharClose();
       handleFilter();
 
     } catch (err) {
       setSnack({ 
-        message: 'Ocorreu um erro. Caso persista, contate o suporte! ' + err, 
+        message: 'Ocorreu um erro a tentar fechar a turma. Caso persista, contate o suporte! ' + err, 
         type: 'error', 
         open: true
       });
@@ -110,14 +112,6 @@ const Unidades = () => {
     setModalEdicao(false);
   }
 
-  const handleModalApurarOpen = () => {
-    setModalApurar(true);
-  }
-
-  const handleModalApurarClose = () => {
-    setModalApurar(false);
-  }
-
   const handleModalFecharOpen = () => {
     setModalFechar(true);
   }
@@ -129,11 +123,6 @@ const Unidades = () => {
   const handleSelecionarParaEditar = (turma) => {
     setTurmaParaEditar(turma); 
     handleEditModalOpen(); 
-  }
-
-  const handleSelecionarParaApurar = (turma) => {
-    setTurmaParaApurar(turma); 
-    handleModalApurarOpen(); 
   }
 
   const handleSelecionarParaFechar = (turma) => {
@@ -151,7 +140,7 @@ const Unidades = () => {
       const turmas = await api.get('/turma', { 
         params: {
           unidadeId: unidade.id, 
-          status
+          status: 'Em Apuração'
         }
       });
 
@@ -175,30 +164,16 @@ const Unidades = () => {
       width: 100,
       sortable: false,
       renderCell: (turma) => {                    
-        return (<>  
-        {
-          turma.row.status !== 'Aberta' ? ''
-          :
+        return (<>            
           <IconButton 
-           title={"Editar Turma"}
+           title={"Selecionar"}
             onClick={() => {        
-              handleSelecionarParaEditar(turma.row);        
+              history.push(`/apurar_resultado/${turma.row.id}`);        
             }
           }>
-            <CreateOutlinedIcon />
-          </IconButton> 
-        }          
-           
+            <Crop32OutlinedIcon />
+          </IconButton>  
           {turma.row.status === 'Aberta' ?
-           <IconButton 
-           title={"Colocar em Apuração"}
-            onClick={() => {        
-              handleSelecionarParaApurar(turma.row);        
-            }
-          }>
-            <AccessTimeIcon />
-          </IconButton>  : '' } 
-          {turma.row.status === 'Em Apuração' ?
            <IconButton 
            title={"Fechar Turma"}
             onClick={() => {        
@@ -253,39 +228,6 @@ const Unidades = () => {
       sortable: true,
     },
     { 
-      field: 'data_prova', 
-      headerName: 'Data da Prova', 
-      width: 200,
-      sortable: true,
-      renderCell: (turma) => {
-        return moment(turma.row.data_prova).format('DD/MM/YYYY')
-      }
-    },
-    { 
-      field: 'hora_prova', 
-      headerName: 'Hora da Prova', 
-      width: 150,
-      sortable: true,
-    },
-    { 
-      field: 'data_encerramento', 
-      headerName: 'Data Encerramento (Inscrições)', 
-      width: 200,
-      sortable: true,
-      renderCell: (turma) => {
-        return moment(turma.row.data_encerramento).format('DD/MM/YYYY')
-      }
-    },
-    { 
-      field: 'data_resultado', 
-      headerName: 'Data do Resultado', 
-      width: 200,
-      sortable: true,
-      renderCell: (turma) => {
-        return moment(turma.row.data_resultado).format('DD/MM/YYYY')
-      }
-    },
-    { 
       field: 'pcd', 
       headerName: 'PCD?', 
       width: 200,
@@ -303,7 +245,7 @@ const Unidades = () => {
   ];
 
   useEffect(() => {
-    document.title = 'Turmas | Smart Owl';         
+    document.title = 'Apuração de Resultado | Smart Owl'; 
   }, []);
 
 
@@ -328,10 +270,10 @@ const Unidades = () => {
   }, [turmaEditada])
 
   return (
-    <AdmDrawer title="Turmas">
+    <AdmDrawer title="Apuração de Resultado">
       <div className="master-dashboard">                
         <BackgroundCard>
-          <BackgroundCardHeader title="Turmas">
+          <BackgroundCardHeader title="Apuração de Resultado">
             { /* processandoRelatorio */ false  ?
             <div style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <CircularProgress />
@@ -356,31 +298,7 @@ const Unidades = () => {
           <div className="filter-form-container">
             <form className="filter-form" onSubmit={null} id="filter-form">
               <div className="filter-form-basic">
-                <SelectUnidades 
-                  value={unidade}
-                  onChange={handleUnidadeChange}
-                />
-
-                <div className="input-block">
-                  <TextField                                    
-                    label="Status"
-                    variant="outlined"
-                    type="number"
-                    autoComplete="off"
-                    value={status}
-                    onChange={(e) => handleStatusChange(e.target.value)}
-                    error={null}
-                    fullWidth 
-                    select                
-                  >
-                    <MenuItem value="Aberta" key="1">Aberta</MenuItem>
-                    <MenuItem value="Fechada" key="2">Fechada</MenuItem>
-                    <MenuItem value="Em Apuração" key="3">Em Apuração</MenuItem>
-                  </TextField> 
-                </div>
-                <div className="input-block">
-                  <PrimaryButton size="large" variant="contained" onClick={() => handleFilter()}>Buscar</PrimaryButton>
-                </div> 
+                <p>Você está apurando a turma: <strong>XXXXXX</strong></p>
               </div>
             </form>
           </div>
@@ -402,21 +320,19 @@ const Unidades = () => {
               />
             </div> 
             </>
-          }                                                              
-         
-        
+          }                                                                               
         </BackgroundCard>                  
       </div>
 
         <Modal
-          open={modalApurar}
-          onClose={handleModalApurarClose}
+          open={modalFechar}
+          onClose={handleModalFecharClose}
           title={`Você deseja encerrar as inscrições para esta turma?`}
           actions={
             <>   
               {loading ? '' : <>     
-              <PrimaryButton onClick={handleModalApurarClose}>CANCELAR</PrimaryButton>
-              <PrimaryButton onClick={() => handleChangeStatusTurma('Em Apuração')}>SIM</PrimaryButton></>}
+              <PrimaryButton onClick={handleModalFecharClose}>CANCELAR</PrimaryButton>
+              <PrimaryButton onClick={() => handleFecharTurma()}>SIM</PrimaryButton></>}
             </>
           }
         >
@@ -435,36 +351,6 @@ const Unidades = () => {
             </div>    
             :        
             <p>Isso colocará a turma em apuração. (Esta ação é irreverssível!)</p>
-          }
-      </Modal> 
-
-      <Modal
-          open={modalFechar}
-          onClose={handleModalFecharClose}
-          title={`Você deseja encerrar a turma permanentemente?`}
-          actions={
-            <>   
-              {loading ? '' : <>     
-              <PrimaryButton onClick={handleModalFecharClose}>CANCELAR</PrimaryButton>
-              <PrimaryButton onClick={() => handleChangeStatusTurma('Fechada')}>SIM</PrimaryButton></>}
-            </>
-          }
-        >
-          {
-            loading
-            ?
-            <div style=
-            {{ 
-                display: 'flex', 
-                flexDirection: 'column',
-                height: '100%',
-                alignContent: 'center',
-                alignItems: 'center',
-            }}>
-              <CircularProgress />
-            </div>    
-            :        
-            <p>Certifique-se de que todos os resultados foram disponibilizados e de que todos os alunos já estão matriculados.</p>
           }
       </Modal> 
 
@@ -488,4 +374,4 @@ const Unidades = () => {
   );
 };
 
-export default Unidades;
+export default ApuracaoResultadoTurma;

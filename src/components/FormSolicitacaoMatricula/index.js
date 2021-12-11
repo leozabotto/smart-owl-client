@@ -26,15 +26,18 @@ const ModalSolicitacaoMatricula = (props) => {
 
     try {     
       setLoading(true);
-      setTimeout(() => {
-        setSnack({
-          message: 'Solicitação recebida! Em breve entraremos em contato com você. 😉',
-          type: 'success',
-          open: true,
-        });
-        setLoading(false);
-        props.handleClose();
-      }, 2000);
+
+      await api.post('/matricula', {
+        candidatoId: props.candidatoId,
+        turmaId: props.turmaId,
+        unidadeId: props.unidadeId,
+        inscricaoId: props.inscricaoId
+      });
+
+      props.changeInscricaoStatus();
+      
+      setLoading(false);
+      props.handleClose();
                                          
     } catch (err) {   
       setSnack({ 

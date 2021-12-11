@@ -120,7 +120,8 @@ const CatalogoCursos = (props) => {
       setLoading(true);
       const turmas = await api.get('/turma', { 
         params: {
-          unidadeId: unidade.id,          
+          unidadeId: unidade.id,    
+          status: 'Aberta'      
         }
       });
 

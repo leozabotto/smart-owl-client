@@ -169,15 +169,6 @@ const HistoricoInscricoes = () => {
       headerName: 'Status', 
       width: 250,
       sortable: true,
-    },
-    { 
-      field: 'encerrada', 
-      headerName: 'Encerrada', 
-      width: 200,
-      sortable: true,
-      renderCell: (turma) => {
-        return turma.row.encerrada === true ? 'Sim' : 'Não'
-      }
     },   
   ];
 

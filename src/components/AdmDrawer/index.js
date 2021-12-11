@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 
-import { Avatar, Collapse, Divider, Grid, Hidden } from '@material-ui/core';
+import { Avatar, Collapse, Divider, Grid, Hidden, CircularProgress } from '@material-ui/core';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
@@ -14,7 +14,6 @@ import ListItem from '@material-ui/core/ListItem';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import ListItemText from '@material-ui/core/ListItemText';
-
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import StorageOutlinedIcon from '@material-ui/icons/StorageOutlined';
@@ -23,6 +22,8 @@ import CreateOutlinedIcon from '@material-ui/icons/CreateOutlined';
 import HomeIcon from '@material-ui/icons/HomeOutlined';
 import AccountCircle from '@material-ui/icons/AccountCircleOutlined';
 import FolderOutlinedIcon from '@material-ui/icons/FolderOutlined';
+import CheckCircleOutlineOutlinedIcon from '@material-ui/icons/CheckCircleOutlineOutlined';
+import AssignmentIndOutlinedIcon from '@material-ui/icons/AssignmentIndOutlined';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import PlaceIcon from '@material-ui/icons/PlaceOutlined';
@@ -30,6 +31,11 @@ import PersonIcon from '@material-ui/icons/PersonOutlined';
 import BorderColorOutlinedIcon from '@material-ui/icons/BorderColorOutlined';
 import AssignmentTurnedInOutlinedIcon from '@material-ui/icons/AssignmentTurnedInOutlined';
 import GroupOutlinedIcon from '@material-ui/icons/GroupOutlined';
+import PrimaryButton from '../Button';
+
+
+import Modal from '../Modal';
+
 
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 
@@ -37,6 +43,8 @@ import { NavContext } from '../../contexts/NavContext';
 import { AuthContext } from '../../contexts/AuthContext';
 
 import './index.css';
+import { SnackContext } from '../../contexts/SnackContext';
+import api from '../../services/api';
 
 const drawerWidth = 280;
 
@@ -84,6 +92,45 @@ const useStyles = makeStyles((theme) => ({
 const AdmDrawer = (props) => {
 
   const { user, handleLogout, permissions } = useContext(AuthContext);
+  const { setSnack } = useContext(SnackContext);
+
+  const [modalConfirmacao, setModalConfirmacao] = useState(false);
+  const handleModalConfirmacaoOpen = () => {
+    setModalConfirmacao(true)
+  }
+  const handleModalConfirmacaoClose= () => {
+    setModalConfirmacao(false)
+  }
+  const [loading, setLoading] = useState(false);
+
+
+  const handleLiberarInscricoes = async () => {
+    setLoading(true)
+    try {
+
+      await api.post('/action/unlock_inscricoes')
+
+      setSnack({ 
+        message: 'Inscrições liberadas!' ,
+        type: 'success', 
+        open: true
+      });
+
+      setLoading(false);
+      handleModalConfirmacaoClose();
+
+
+    } catch(err) {
+      setSnack({ 
+        message: 'Ocorreu um erro. Caso persista, contate o suporte! ' + err, 
+        type: 'error', 
+        open: true
+      });
+
+      setLoading(false)
+    }
+  }
+
 
   const history = useHistory();
 
@@ -167,8 +214,7 @@ const AdmDrawer = (props) => {
               className="listSpacing" 
               component={Link} 
               to="/adm/usuarios" 
-              selected={location.pathname === "/adm/usuarios"}
-              disabled
+              selected={location.pathname === "/adm/usuarios"}            
             >
               <ListItemIcon>
                 <PersonIcon />
@@ -225,30 +271,36 @@ const AdmDrawer = (props) => {
             classes={{ selected: classes.selected }} 
             component={Link} 
             className="listSpacing" 
-            to="/adm/banco_questoes" 
-            selected={location.pathname === "/adm/banco_questoes"} 
-            disabled           
+            to="/adm/matriculas" 
+            selected={location.pathname === "/adm/matriculas"}            
           >
             <ListItemIcon>
-              <CreateOutlinedIcon />
+              <AssignmentIndOutlinedIcon />
             </ListItemIcon>
-            <ListItemText primary="Questões" />
-          </ListItem> 
-
+            <ListItemText primary="Solicitações de Matrícula" />
+          </ListItem>   
           <ListItem button 
             classes={{ selected: classes.selected }} 
             component={Link} 
             className="listSpacing" 
-            to="/adm/banco_redacao" 
-            selected={location.pathname === "/adm/banco_redacao"}   
-            disabled         
+            to="/adm/inscricoes" 
+            selected={location.pathname === "/adm/inscricoes"}                        
           >
             <ListItemIcon>
-              <DescriptionOutlinedIcon />
+              <CreateOutlinedIcon />
             </ListItemIcon>
-            <ListItemText primary="Redação" />
-          </ListItem> 
-                                   
+            <ListItemText primary="Inscrições" />
+          </ListItem>                                    
+          <ListItem button 
+            classes={{ selected: classes.selected }}              
+            className="listSpacing"    
+            onClick={() => handleModalConfirmacaoOpen()}                             
+          >
+            <ListItemIcon>
+              <CheckCircleOutlineOutlinedIcon />
+            </ListItemIcon>
+            <ListItemText primary="Liberar Inscrições Antigas" />
+          </ListItem>                                    
         </Collapse>  
         </>
       }                        
@@ -386,6 +438,37 @@ const AdmDrawer = (props) => {
         <div className={classes.toolbar} />
         {props.children}
       </main>
+
+      <Modal
+        open={modalConfirmacao}
+        onClose={handleModalConfirmacaoClose}
+        title={`Você deseja liberar as inscrições antigas?`}
+        actions={
+          <>   
+            {loading ? '' : <>     
+            <PrimaryButton onClick={handleModalConfirmacaoClose}>CANCELAR</PrimaryButton>
+            <PrimaryButton onClick={() => handleLiberarInscricoes()}>SIM</PrimaryButton></>}
+          </>
+        }
+      >
+        {
+          loading
+          ?
+          <div style=
+          {{ 
+              display: 'flex', 
+              flexDirection: 'column',
+              height: '100%',
+              alignContent: 'center',
+              alignItems: 'center',
+          }}>
+            <CircularProgress />
+          </div>    
+          :        
+          <p>Isso permitirá que os candidatos que participaram de algum processo seletivo recente se inscrevam novamente nas turmas.</p>
+        }
+      </Modal> 
+
     </div>
   );
 }

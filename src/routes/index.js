@@ -28,6 +28,10 @@ import browserHistory from '../history';
 import MeusDados from '../pages/cand/MeusDados';
 import HistoricoInscricoes from '../pages/cand/HistoricoInscricoes';
 import CatalogoCursosPriv from '../pages/cand/CatalogoCursosPriv';
+import ApuracaoResultado from '../pages/adm/ApuracaoResultado';
+import Inscricoes from '../pages/adm/Inscricoes';
+import Matriculas from '../pages/adm/Matriculas';
+import Usuarios from '../pages/adm/Usuarios';
 
 const Routes = () =>{
   return (
@@ -68,7 +72,7 @@ const Routes = () =>{
 
         {/* Administração */}
 
-        {/*
+        
 
         <PrivateRoute
           exact path="/adm/painel" 
@@ -90,6 +94,16 @@ const Routes = () =>{
           exact path="/adm/turmas" 
           component={() => <Turmas type="ADM" />} 
         />
+
+        <PrivateRoute
+          exact path="/adm/apurar_resultado" 
+          component={() => <ApuracaoResultado type="ADM" />} 
+        />
+
+        <PrivateRoute
+          exact path="/adm/apurar_resultado/:id" 
+          component={() => <ApuracaoResultado type="ADM" />} 
+        />
         
         <PrivateRoute
           exact path="/adm/banco_redacao" 
@@ -99,12 +113,27 @@ const Routes = () =>{
         <PrivateRoute
           exact path="/adm/banco_questoes" 
           component={() => <BancoQuestoes type="ADM" />} 
-        />*/}
+        />
+
+        <PrivateRoute
+          exact path="/adm/inscricoes" 
+          component={() => <Inscricoes type="ADM" />} 
+        />
+        
+        <PrivateRoute
+          exact path="/adm/matriculas" 
+          component={() => <Matriculas type="ADM" />} 
+        />
+       
+        <PrivateRoute
+          exact path="/adm/usuarios" 
+          component={() => <Usuarios type="ADM" />} 
+        />
+
 
         {/* Candidato */}
         
        
-
         <PrivateRoute
           exact path="/painel" 
           component={() => <PainelCand type="CAN" />} 

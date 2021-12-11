@@ -89,12 +89,7 @@ const FormEdicaoTurmas = (props) => {
         return {
           ...state,
           hora_termino: action.value,
-        } 
-      case 'cgPcd': 
-        return {
-          ...state,
-          pcd: action.value,
-        }     
+        }          
       case 'resetForm':       
         return {
           ...initialState,          
@@ -194,8 +189,7 @@ const FormEdicaoTurmas = (props) => {
         dispatch({ type: 'cgPeriodo', value: props.turmaParaEditar.periodo });                         
         dispatch({ type: 'cgInicio', value: props.turmaParaEditar.hora_inicio });                         
         dispatch({ type: 'cgTermino', value: props.turmaParaEditar.hora_termino });                                                     
-        dispatch({ type: 'cgPcd', value: props.turmaParaEditar.pcd });
-
+        
         setUnidade(props.turmaParaEditar.unidade);
         setCurso(props.turmaParaEditar.curso);
 
@@ -215,7 +209,7 @@ const FormEdicaoTurmas = (props) => {
     if (props.turmaParaEditar !== undefined && props.turmaParaEditar !== null) {
       setTurma();
       setSnack({
-        message: 'Editar uma turma afetará todas as inscrições já existentes vinculadas a ela. Tome cuidado!',
+        message: 'Por questões de segurança, você poderá editar apenas alguns dados. Tome cuidado! Isso afetará todas as inscrições desta turma já realizadas.',
         type: 'warning',
         open: true
       }); 
@@ -228,7 +222,7 @@ const FormEdicaoTurmas = (props) => {
     <Modal
       open={props.editModal}
       onClose={props.handleEditModalClose}
-      title={`Nova Turma`}
+      title={`Editar Turma`}
       actions={
         <>        
           <PrimaryButton onClick={props.handleEditModalClose}>CANCELAR</PrimaryButton>
@@ -381,14 +375,7 @@ const FormEdicaoTurmas = (props) => {
                     fullWidth     
                     required={true}                         
                   />    
-                </div> 
-                <div className="input-block">
-                <FormControlLabel control={
-                  <Switch 
-                    checked={form.pcd}
-                    onChange={(e) => dispatch({ type: "cgPcd", value: e.target.checked})}
-                  />
-                } label="PCD" /></div>                                                                    
+                </div>                                                                                                   
               </div>                                                  
             </form>
           </div>

@@ -12,6 +12,9 @@ import {
 
 import { FormControlLabel, Switch } from '@material-ui/core';
 
+import FutureCalendar from '../FutureCalendar';
+
+
 import SelectUnidades from '../SelectUnidades';
 import SelectCursos from '../SelectCursos';
 
@@ -34,6 +37,10 @@ const FormCadastroUnidade = (props) => {
   const [unidade, setUnidade] = useState(null);
   const [curso, setCurso] = useState(null);
 
+  const [data_prova, setDataProva] = useState(null);
+  const [data_encerramento, setDataEncerramento] = useState(null);
+  const [data_resultado, setDataResultado] = useState(null);
+
   const handleUnidadeChange = (value) => {
     setUnidade(value);
   }
@@ -49,7 +56,8 @@ const FormCadastroUnidade = (props) => {
     status: "Aberta",
     idade_min: 0,
     idade_max: 0,
-    periodo: "Manhã"
+    periodo: "Manhã",
+    pcd: false
   }
 
   const reducer = (state, action) => {
@@ -63,6 +71,11 @@ const FormCadastroUnidade = (props) => {
         return {
           ...state,
           modalidade: action.value,
+        }
+      case 'cgHoraProva': 
+        return {
+          ...state,
+          hora_prova: action.value,
         }
       case 'cgQtdVagas': 
         return {
@@ -152,6 +165,9 @@ const FormCadastroUnidade = (props) => {
 
       form.unidadeId = unidade.id;
       form.cursoId = curso.id;
+      form.data_prova = data_prova;
+      form.data_encerramento = data_encerramento;
+      form.data_resultado = data_resultado;
 
       const turma = await api.post('/turma', { ...form })
       
@@ -335,6 +351,61 @@ const FormCadastroUnidade = (props) => {
                     required={true}                         
                   />    
                 </div> 
+                <div className="input-block">
+                  <FutureCalendar
+                    name="data_prova"
+                    label="Data da Prova"
+                    inputVariant="outlined"
+                    autoComplete="off"
+                    value={data_prova}
+                    onChange={setDataProva}
+                    fullWidth
+                    required
+                    required={true}
+                  />
+                </div>
+                <div className="input-block"> 
+                  <TextField                                    
+                    label="Hora da Prova"
+                    variant="outlined"
+                    type="text"
+                    autoComplete="off"
+                    value={form.hora_prova}
+                    onChange={(e) => dispatch({
+                      type: 'cgHoraProva',
+                      value: e.target.value,
+                    })}
+                    error={null}
+                    fullWidth 
+                    required={true}                             
+                  />    
+                </div> 
+                <div className="input-block">
+                  <FutureCalendar
+                    name="data_encerramento"
+                    label="Data da Encerramento das Insc."
+                    inputVariant="outlined"
+                    autoComplete="off"
+                    value={data_encerramento}
+                    onChange={setDataEncerramento}
+                    fullWidth
+                    required
+                    required={true}
+                  />
+                </div>
+                <div className="input-block">
+                  <FutureCalendar
+                    name="data_resultado"
+                    label="Data do Resultado"
+                    inputVariant="outlined"
+                    autoComplete="off"
+                    value={data_resultado}
+                    onChange={setDataResultado}
+                    fullWidth
+                    required
+                    required={true}
+                  />
+                </div>
                 <div className="input-block">
                 <FormControlLabel control={
                   <Switch 

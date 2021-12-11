@@ -7,38 +7,45 @@ import { TextField } from '@material-ui/core';
 import api from '../../services/api';
 import { SnackContext } from '../../contexts/SnackContext';
 
-const ClientBanksSelect = (props) => {
+const SelectTurmas = (props) => {
 
-  const [banks, setBanks] = useState([]);
+  const [turmas, setTurmas] = useState([]);
   const history = useHistory();
 
   const { setSnack } = useContext(SnackContext);
 
+  const [options, setOptions] = useState([]);
+
   useEffect(() => {
-    async function getBanks() {
+    async function getUnidades() {
       try {
-        const res = await api.get('/client_bank');     
-        setBanks(res.data);        
+        const res = await api.get('/turma');
+        setTurmas(res.data);       
       } catch(err) {        
         setSnack({ 
-          message: 'Ocorreu um erro ao buscar as contas bancárias. Caso persista, contate o suporte! ' + err, 
+          message: 'Ocorreu um erro ao buscar as turmas. Caso persista, contate o suporte! ' + err, 
           type: 'error', 
           open: true
         });
-        history.push('/cli/dashboard');        
+        history.push('/adm/painel');        
       }
     }
-    getBanks();   
+    getUnidades();   
   }, [history, setSnack]);
 
-  const options = banks.map((option) => {
-    const firstLetter = option.name[0].toUpperCase();
-    return {
-      firstLetter: /[0-9]/.test(firstLetter) ? '0-9' : firstLetter,
-      firstLetter,
-      ...option,
-    };
-  });
+  useEffect(() => {
+    if (turmas !== null) {
+      setOptions(
+      turmas.map((option) => {
+        const firstLetter = option.nome[0].toUpperCase();
+        return {
+          firstLetter: /[0-9]/.test(firstLetter) ? '0-9' : firstLetter,
+          firstLetter,
+          ...option,
+        };
+      }));  
+    }
+  }, [turmas])
 
   return (
     <>
@@ -48,14 +55,16 @@ const ClientBanksSelect = (props) => {
           onChange={(event, value) => props.onChange(value)}                          
           options={options.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
           groupBy={(option) => option.firstLetter}
-          getOptionLabel={(option) => option.name}  
+          getOptionLabel={(option) => option.nome}  
           getOptionSelected={(option, value) => option.id === props.value.id}                
-          renderInput={(params) => <TextField {...params} id="ClientBanksSelect" 
-          label="Contas Bancárias" variant="outlined" required={props.optional ? false : true} />}         
+          renderInput={(params) => <TextField {...params} id="SelectTurmas" 
+          label="Turma" variant="outlined" required={props.optional ? false : true} 
+          disabled={props.disabled}
+          />}          
         />
       </div>  
     </>
   )
 }
 
-export default ClientBanksSelect;
+export default SelectTurmas;

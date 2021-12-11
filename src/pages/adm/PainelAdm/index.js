@@ -33,7 +33,7 @@ const PainelAdm = () => {
             height="50vh"
             css={{ marginTop: 20 }}
           >    
-            <p> [ DASHBOARD ] </p>                    
+            <p> Utilize o menu lateral para começar. </p>                    
           
             {/* <CardLink link="/cli/payable_accounts" icon={<AccountBalanceWallet />}>
               Contas a Pagar

@@ -27,16 +27,21 @@ const PainelCand = () => {
   const { user, role } = useContext(AuthContext);
 
   const { setSnack } = useContext(SnackContext);
+
+  const [candidatoId, setCandidatoId] = useState('');
+  const [turmaId, setTurmaId] = useState('');
+  const [unidadeId, setUnidadeId] = useState('');
   
   useEffect(() => {
     document.title = 'Dashboard | Smart Owl';
 
     async function getInscricao() {
       try {
-        
-        
+                
         const token = jwtDecode(localStorage.getItem('token'));
         const candidatoId =  token.id;
+
+        setCandidatoId(candidatoId);
 
         const inscricao = await api.get('/inscricao', {
           params: {
@@ -46,9 +51,11 @@ const PainelCand = () => {
         });
     
         if (inscricao.data.length === 0) {
-          setInscricao(null) 
+          setInscricao('') 
         } else {
           setInscricao(inscricao.data[0]);
+          setUnidadeId(inscricao.data[0].turma.unidade.id);
+          setTurmaId(inscricao.data[0].turma.id);
         }
       } catch (err) {
         setSnack({ 
@@ -63,8 +70,12 @@ const PainelCand = () => {
 
   }, [role]);
 
-  const [inscricao, setInscricao] = useState(null);
+  const [inscricao, setInscricao] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+
+  const changeInscricaoStatus = () => {
+    setInscricao({ ...inscricao, status: 'MATRÍCULA SOLICITADA'});
+  }
 
   return (
     <CandDrawer title="Painel do Candidato">
@@ -74,7 +85,7 @@ const PainelCand = () => {
             title={`Olá, ${user.nome}!`}  
             subtitle={"Bem-vindo ao Smart Owl 🙂"}        
           />
-          {inscricao === null ?
+          {inscricao === '' ?
             <Box
               display="flex"
               flexWrap="wrap"
@@ -133,7 +144,7 @@ const PainelCand = () => {
                 {inscricao.status === "MATRÍCULA SOLICITADA" ? <>
                   <p id="status" className="green">MATRÍCULA SOLICITADA!</p>
                   <p style={{ alignSelf: 'center'}}>
-                    Entraremos em contato com você para os próximos passos.
+                    Entraremos em contato com você em até 3 dias úteis para os próximos passos.
                   </p>
                   <p style={{ alignSelf: 'center'}}>
                     Seja bem-vindo(a)! 😊
@@ -152,6 +163,11 @@ const PainelCand = () => {
         <ModalSolicitacaoMatricula 
           modalOpen={modalOpen}
           handleClose={() => setModalOpen(false)}
+          candidatoId={candidatoId}
+          turmaId={turmaId}
+          unidadeId={unidadeId}
+          inscricaoId={inscricao.id}
+          changeInscricaoStatus={changeInscricaoStatus}
         />
       </BackgroundCard>
     </CandDrawer>
